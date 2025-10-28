@@ -17,7 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration()
+@ContextConfiguration(classes = { DomainEventCreatingEntityListenerTest.TestConfig.class })
 @Transactional
 @RecordApplicationEvents
 public class DomainEventCreatingEntityListenerTest {
@@ -30,9 +30,17 @@ public class DomainEventCreatingEntityListenerTest {
 
     assertThat(events.stream(DomainEventEntity.CreatedEvent.class).toList())
       .hasSize(1)
-      .allSatisfy((createdEvent) -> {
-        assertThat(createdEvent.entity()).isSameAs(entity);
-      });
+      .allSatisfy((createdEvent) -> assertThat(createdEvent.entity()).isSameAs(entity));
+  }
+
+  @Test
+  void shouldSendRemovedEvent(ApplicationEvents events) {
+    final var entity = repository.save(new DomainEventEntity("CreateEvent Test Entity"));
+    repository.delete(entity);
+
+    assertThat(events.stream(DomainEventEntity.RemovedEvent.class).toList())
+      .hasSize(1)
+      .allSatisfy((createdEvent) -> assertThat(createdEvent.entity()).isSameAs(entity));
   }
 
   interface DomainEventEntityRepository extends JpaRepository<DomainEventEntity, Long> {}
