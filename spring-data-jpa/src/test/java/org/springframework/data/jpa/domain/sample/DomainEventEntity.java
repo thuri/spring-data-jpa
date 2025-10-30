@@ -5,7 +5,13 @@ import org.springframework.data.domain.AbstractAggregateRoot;
 import org.springframework.data.jpa.domain.JpaDomainEvents;
 import org.springframework.data.jpa.domain.support.DomainEventCreatingEntityListener;
 
-@JpaDomainEvents(created = DomainEventEntity.CreatedEvent.class, removed = DomainEventEntity.RemovedEvent.class)
+import java.util.HashSet;
+import java.util.Set;
+
+@JpaDomainEvents(
+  created = DomainEventEntity.CreatedEvent.class,
+  removed = DomainEventEntity.RemovedEvent.class
+)
 @EntityListeners(DomainEventCreatingEntityListener.class)
 @Entity
 public class DomainEventEntity extends AbstractAggregateRoot<DomainEventEntity> {
@@ -19,7 +25,11 @@ public class DomainEventEntity extends AbstractAggregateRoot<DomainEventEntity> 
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE)
-  Long id;
+  public Long id;
 
-  String name;
+  public String name;
+
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = "parent")
+  public final Set<DomainEventChildEntity> children = new HashSet<>();
+
 }

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.data.jpa.domain.sample.DomainEventChildEntity;
 import org.springframework.data.jpa.domain.sample.DomainEventEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -41,6 +42,18 @@ public class DomainEventCreatingEntityListenerTest {
     assertThat(events.stream(DomainEventEntity.RemovedEvent.class).toList())
       .hasSize(1)
       .allSatisfy((createdEvent) -> assertThat(createdEvent.entity()).isSameAs(entity));
+  }
+
+  @Test
+  void shouldSendChildAddedEvent(ApplicationEvents events) {
+    var parent = new DomainEventEntity("CreateEvent Test Entity");
+    var child = new DomainEventChildEntity(parent, "Child 1 Name");
+    parent.children.add(child);
+    repository.save(parent);
+
+    assertThat(events.stream(DomainEventChildEntity.ChildAdded.class))
+      .hasSize(1)
+      .allSatisfy((addedEvent) -> assertThat(addedEvent.child()).isSameAs(child));
   }
 
   interface DomainEventEntityRepository extends JpaRepository<DomainEventEntity, Long> {}
