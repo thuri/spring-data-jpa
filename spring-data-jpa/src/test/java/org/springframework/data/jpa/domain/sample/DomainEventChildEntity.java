@@ -6,13 +6,16 @@ import org.springframework.data.jpa.domain.support.DomainEventCreatingEntityList
 
 @Entity
 @JpaDomainEvents(
-  created = DomainEventChildEntity.ChildAdded.class
+  created = DomainEventChildEntity.ChildAdded.class,
+  removed = DomainEventChildEntity.ChildRemoved.class
 )
 @EntityListeners(DomainEventCreatingEntityListener.class)
 public class DomainEventChildEntity {
 
   public record ChildAdded(DomainEventChildEntity child) {}
   public record ChildRemoved(DomainEventChildEntity child) {}
+
+  private DomainEventChildEntity(){}
 
   public DomainEventChildEntity(DomainEventEntity parent, String name) {
     this.name = name;
@@ -21,9 +24,9 @@ public class DomainEventChildEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE)
-  Long id;
+  public Long id;
 
-  String name;
+  public String name;
 
   @ManyToOne
   DomainEventEntity parent;

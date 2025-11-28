@@ -19,6 +19,8 @@ public class DomainEventEntity extends AbstractAggregateRoot<DomainEventEntity> 
   public record CreatedEvent(DomainEventEntity entity) {}
   public record RemovedEvent(DomainEventEntity entity) {}
 
+  public DomainEventEntity() {}
+
   public DomainEventEntity(String name) {
     this.name = name;
   }
@@ -29,7 +31,7 @@ public class DomainEventEntity extends AbstractAggregateRoot<DomainEventEntity> 
 
   public String name;
 
-  @OneToMany(cascade = CascadeType.ALL, mappedBy = "parent")
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "parent")
   public final Set<DomainEventChildEntity> children = new HashSet<>();
 
 }
